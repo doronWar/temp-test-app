@@ -139,13 +139,13 @@ class App extends React.Component {
 
 
   tempByScroll(event) {
-    if (event.wheelDelta > 0) {
+    if (event.wheelDelta < 0) {
       this.props.addToScrollerCounter(event.wheelDelta);
       if (this.props.scrollerCounter % 1000) {
         this.props.tempDownByKey();
       }
     }
-    else if (event.wheelDelta < 0) {
+    else if (event.wheelDelta > 0) {
       this.props.subtractFromScrollerCounter(event.wheelDelta)
       if (this.props.scrollerCounter % 1000) {
         this.props.tempUpByKey();
