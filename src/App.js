@@ -14,7 +14,9 @@ class App extends React.Component {
   constructor() {
     super();
     this.state = {
-      test: 0,
+      flickerIntervalController: 0,
+      flage: true,
+      counter:0,
     }
   }
 
@@ -23,40 +25,34 @@ class App extends React.Component {
 
     this.props.mouseIsClicked();
     this.props.startFlickCheck();
-
-    clearInterval(this.state.test);
     this.props.resetSwipeCalc();
-    // if(this.props.degreesToMoveByFlick>0){
-    //
-    // }
-
+    this.props.flickPowerToDegree(0)
+    this.setState({flage: false});
 
   }
 
   onSwipeMove(position, event) {
-
-    // if (this.props.checkForFlick) {
-    //   this.props.saveSwipeStartPoint(position.y);
-    //   this.props.saveSwipeStartTime(event.timeStamp)
-    //   this.props.resetFlickCheck();
-    // }
-
 
     if (this.props.shouldCountMouseMovement) {
 
       this.props.addSwipeTimeStamp(event.timeStamp);
       this.props.addSwipePositionArr(position.y);
 
-      if (this.props.prevMousePotion < position.y && !(position.y % this.props.ratio)) {
+
+
+      if (this.props.prevMousePotion < position.y && !(Math.floor(Math.abs(position.y)% this.props.ratio))) {
+
+
         this.props.tempDownByKey();
 
       }
-      else if (this.props.prevMousePotion > position.y && !(position.y % this.props.ratio)) {
+      else if (this.props.prevMousePotion > position.y && !(Math.floor(Math.abs(position.y) % this.props.ratio))) {
         this.props.tempUpByKey();
 
       }
+
       this.props.mousePrevPosition(position.y);
-      // this.props.saveSwipeEndTime(event.timeStamp);
+
     }
 
 
@@ -70,38 +66,33 @@ class App extends React.Component {
     const halfLenghOfAction = Math.floor(this.props.swipePositionArr.length / 2);
     const firstHalfTime = this.props.swipeTimeArr[halfLenghOfAction] - this.props.swipeTimeArr[0];
     const lastHalfTime = this.props.swipeTimeArr[lenghOfAction - 1] - this.props.swipeTimeArr[halfLenghOfAction];
-
-
-    // const firstQuater = this.props.swipeTimeArr[Math.floor(halfLenghOfAction + halfLenghOfAction / 2)] - this.props.swipeTimeArr[halfLenghOfAction];
-    // const secondQuater = this.props.swipeTimeArr[lenghOfAction - 1] - this.props.swipeTimeArr[Math.floor(halfLenghOfAction + halfLenghOfAction / 2)];
+    
+    const firstHalfSpeed = Math.abs((this.props.swipePositionArr[halfLenghOfAction]-this.props.swipePositionArr[0])/firstHalfTime);
+    const secondHalfSpeed = Math.abs((this.props.swipePositionArr[lenghOfAction-1]))-Math.abs((this.props.swipePositionArr[halfLenghOfAction])/lastHalfTime);
+    const accelaration= 10*(secondHalfSpeed - firstHalfSpeed)/(this.props.swipeTimeArr[lenghOfAction - 1]-this.props.swipeTimeArr[0]);
 
 
     if (firstHalfTime > lastHalfTime) {
-
+      this.setState({flage: true});
       const timeDiffrences = Math.floor(firstHalfTime - lastHalfTime);
-      // let degreeToChange = 0;
+
 
       if (timeDiffrences < 10) {
-        this.props.flickPowerToDegree(2)
-        // degreeToChange=  2;
+        this.props.flickPowerToDegree(2);
       }
       if (timeDiffrences > 10 && timeDiffrences < 25) {
-        this.props.flickPowerToDegree(3)
-        // degreeToChange=  3;
+        this.props.flickPowerToDegree(3);
       }
       if (timeDiffrences > 25 && timeDiffrences < 35) {
-        this.props.flickPowerToDegree(4)
-        // degreeToChange=  3;
+        this.props.flickPowerToDegree(4);
       }
       else if (timeDiffrences > 35) {
-        this.props.flickPowerToDegree(5)
-        // degreeToChange=  5;
+        this.props.flickPowerToDegree(5);
       }
 
 
-      this.setState({test: setInterval(() => this.counterByFlick(), 250)});
-      // this.setState({test: setTimeOut(() => this.counterByFlick(), 500)});
-      // setTimeout(() => setTimeout(()=>console.info('check'),500),  500)
+      const flickSpeed = accelaration<7? 300: 200
+      this.setState({flickerIntervalController: setInterval(() =>this.counterByFlick(), flickSpeed)});
 
     }
     else {
@@ -174,6 +165,7 @@ class App extends React.Component {
   }
 
   changeTemperatureByClick(event) {
+
     if (event.currentTarget.className === 'buttom-click') {
       this.props.tempDownByKey();
     }
@@ -184,10 +176,11 @@ class App extends React.Component {
 
 
   backgroundCreator() {
+
     const ctx = this.canvasGradient.getContext("2d");
     const lingrad = ctx.createLinearGradient(0, 0, 0, 100);
     const green = 37 - Math.floor(35 - this.props.temp);
-    const blue = Math.floor(35 - this.props.temp) * 2 + 27;
+    const blue =   Math.floor(35 - this.props.temp) * 2 + 27;
     const red = Math.floor(this.props.temp / 2) + 10;
     lingrad.addColorStop(0, `rgba(${red + 20},${green + 40},${blue + 106},1)`);
     lingrad.addColorStop(0.4, `rgba(${red + 31},${green + 90},${blue + 169},1)`);
@@ -205,9 +198,11 @@ class App extends React.Component {
 
     this.backgroundCreator();
 
-    const thirdOfTemperaturePosibelMovement = 40;
+    let thirdOfTemperaturePosibelMovement = 34;
+
 
     if ('ontouchstart' in window) {
+      thirdOfTemperaturePosibelMovement = 44;
       const dividBy = window.innerHeight > window.innerWidth ? window.innerHeight : window.innerWidth;
       this.props.saveRatio(Math.floor(dividBy / thirdOfTemperaturePosibelMovement));
     }
@@ -215,6 +210,7 @@ class App extends React.Component {
       window.addEventListener('keydown', (e) => {
         this.changeTemperatureByKey(e)
       });
+
 
       window.addEventListener('mousewheel', (e) => this.tempByScroll(e));
       this.props.saveRatio(Math.floor(window.innerHeight / thirdOfTemperaturePosibelMovement));
@@ -226,22 +222,19 @@ class App extends React.Component {
   componentDidUpdate() {
     this.backgroundCreator();
     if (this.props.degreesToMoveByFlick === 0) {
-      clearInterval(this.state.test);
-      // clearTimeout(this.state.test);
+      clearInterval(this.state.flickerIntervalController);
       this.props.flickDegreeChanger();
-      // this.props.resetSwipeCalc();
     }
   }
 
   counterByFlick() {
-console.info(this.props.degreesToMoveByFlick);
-    if (this.props.swipePositionArr[0] < 0) {
-      // this.props.tempUpByKey()
-      setTimeout(() => this.props.tempUpByKey(),  2 * (650-100*this.props.degreesToMoveByFlick))
+
+
+    if (this.props.swipePositionArr[this.props.swipePositionArr.length-1] < 0) {
+      this.props.tempUpByKey();
     }
     else {
-      // this.props.tempDownByKey()
-      setTimeout(() => this.props.tempDownByKey(), 2 * (650-100*this.props.degreesToMoveByFlick))
+      this.props.tempDownByKey();
     }
     this.props.flickDegreeChanger();
 
@@ -298,14 +291,11 @@ function mapStateToProps(data) {
     shouldCountMouseMovement: data.LogicTemp.isMouseInMovement,
     prevMousePotion: data.LogicTemp.lastPositionWhileMovement,
     scrollerCounter: data.LogicTemp.scrollCounter,
-    // swipStartTime: data.LogicTemp.swipeStartTime,
-    // swipEndTime: data.LogicTemp.swipeEndTime,
     swipstartingPoint: data.LogicTemp.swipeStartingPoint,
     checkForFlick: data.LogicTemp.checkForFlick,
     swipeTimeArr: data.LogicTemp.swipeLastTimeStamp,
     swipePositionArr: data.LogicTemp.swipeLastPositionStamp,
     degreesToMoveByFlick: data.LogicTemp.flickDegreesToChange,
-
   }
 }
 
@@ -361,18 +351,6 @@ function mapDispatchToProps(dispatch) {
         newSum: toSubtract,
       })
     },
-    // saveSwipeStartTime(time){
-    //   dispatch({
-    //     type: 'SAVE_SWIPE_START_TIME',
-    //     time: time,
-    //   })
-    // },
-    // saveSwipeEndTime(time){
-    //   dispatch({
-    //     type: 'SAVE_SWIPE_END_TIME',
-    //     time: time,
-    //   })
-    // },
     saveSwipeStartPoint(point){
       dispatch({
         type: 'SAVE_SWIPE_START_POINT',
@@ -391,12 +369,6 @@ function mapDispatchToProps(dispatch) {
 
       })
     },
-    // resetFlickCheck(){        ///can i ersae this?
-    //   dispatch({
-    //     type: 'RESET_FLICK_CHECK',
-    //
-    //   })
-    // },
     addSwipeTimeStamp(timeStamp){
       dispatch({
         type: 'SAVE_ARR_TIME_STAMP',
@@ -427,13 +399,6 @@ function mapDispatchToProps(dispatch) {
         type: 'RESSET_FLICK_DEGREES',
       })
     },
-    // resetSwipeTimeStamp(){
-    //   dispatch({
-    //     type: 'RESET_TIME_STAMP',
-    //
-    //   })
-    // },
-
 
   }
 }

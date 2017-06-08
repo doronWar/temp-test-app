@@ -6,13 +6,12 @@ const data ={
   lastPositionWhileMovement:0,
   scrollCounter:0,
   checkForFlick: false,
-  // swipeStartTime:0,
-  // swipeEndTime:0,
   swipeStartingPoint:0,
   swipeLastTimeStamp:[],
   swipeLastPositionStamp:[],
   flickDegreesToChange:-1,
-}
+
+};
 
 export default function Logictemmp(curent =data, action) {
 
@@ -39,12 +38,6 @@ export default function Logictemmp(curent =data, action) {
     case 'SUBTRACT_FROM_SCROLLER':
       return Object.assign({}, curent, {scrollCounter: curent.scrollCounter + action.newSum });
 
-    // case 'SAVE_SWIPE_START_TIME':                                   //maybe can erase this
-    //   return Object.assign({}, curent, {swipeStartTime: action.time });
-    //
-    // case 'SAVE_SWIPE_END_TIME':                                   //maybe can erase this
-    //   return Object.assign({}, curent, {swipeEndTime: action.time });
-
     case 'SAVE_SWIPE_START_POINT':
       return Object.assign({}, curent, {swipeStartingPoint: action.y });
 
@@ -66,32 +59,18 @@ export default function Logictemmp(curent =data, action) {
     const PositionArr= [...curent.swipeLastPositionStamp];
     PositionArr.push(action.y)
     return Object.assign({}, curent, {swipeLastPositionStamp: PositionArr});
+
     case 'SET_FLICK_DEGREES':
       return Object.assign({}, curent, {flickDegreesToChange: action.num  });
+
     case 'FLICK_DEGREES_CHANGER':
       return Object.assign({}, curent, {flickDegreesToChange: curent.flickDegreesToChange -1  });
+
     case 'RESET_FLICK_DEGREES':
       return Object.assign({}, curent, {flickDegreesToChange: -1  });
     default:
       return Object.assign({}, curent);
 
-    // case 'RESET_TIME_STAMP':
-    //   return Object.assign({}, curent, {SwipeLastTimestamp: 0 })
-
-
   }
 
-  // if( action.type === 'SAVE_RATIO'){
-  //   return Object.assign({}, curent, {degreeToScreenratio: action.ratio})
-  // }
-  //
-  // if( action.type === 'SAVE_MOUSE_START_POINT'){
-  //
-  //   return Object.assign({}, curent, {startingPointCalc: action.y})
-  // }
-
-
-
-
-  // return curent
 }
